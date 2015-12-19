@@ -3,7 +3,10 @@
 #           showing the total PM2.5 emission from all sources for each of
 #           the years 1999, 2002, 2005, and 2008.
 #
+thisPlotName <- "plot1"
+
 ##### Data Retrieval/Loading - Standard between all plots #######
+message("*** Starting ", thisPlotName)
 # if we don't have the data available, then go get it
 if (!exists("NEI")) {
   library(dplyr)
@@ -36,12 +39,9 @@ if (!exists("NEI")) {
   NEI$SCC <- as.factor(NEI$SCC)
   NEI$fips <- as.factor(NEI$fips)
 
-  # Convert data frame to table frame for dplyr;
-  # message("Preparing data file")
-  #   df_NEI<-tbl_df(NEI)
-  #   df_SCC<-tbl_df(SCC)
+
   # Clean up unnecessary files and variables
-  message("Cleaning temp items")
+  message("Clearing temp items")
   unlink(raw.file.scc)
   unlink(raw.file.summary)
   rm(raw.file.scc)
@@ -52,12 +52,21 @@ if (!exists("NEI")) {
 
 }
 
-# set pngOutput to false to write to screen
-pngOutput<-TRUE
+# set pngOutput to false to write to screen; snagging pngOutput
+# from global environment allows all plot scripts to be ran 
+# without having to modify the code here 
+if (!exists("pngOutput")) {
+  pngOutput<-FALSE
+}
+pngFilename <- paste0(thisPlotName,".png") 
 if (pngOutput) {
-  png(file="plot1.png")
+  png(file=pngFilename)
+  message("Output: ",pngFilename)
+} else {
+  message("Output: screen")
 }
 
+message("Assignment-specific data preparation")
 yearlyEmissions <- NEI %>%
   group_by(year) %>%
   summarize(total_emissions = sum(Emissions)/1000000)
@@ -81,14 +90,18 @@ plot(xrange, yrange,
 axis(side=1,
      at=unique(yearlyEmissions$year))
 
-lines(yearlyEmissions$year,yearlyEmissions$total_emissions,type="l",col="red",lwd=5)
+lines(yearlyEmissions$year,yearlyEmissions$total_emissions,type="l",col="red",lwd=3)
 
+# clear out temp variables and data
+message("Clearing assignment-specific temp items")
 rm(xrange)
 rm(yrange)
+rm(yearlyEmissions)
+rm(pngFilename)
+rm(thisPlotName)
 
 # closes the png device if necessary
 if (pngOutput) {
   dev.off()
 }
-
 

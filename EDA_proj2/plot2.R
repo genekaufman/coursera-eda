@@ -2,7 +2,10 @@
 #           Baltimore City, Maryland (fips == "24510") from 1999 to 2008? 
 #           Use the base plotting system to make a plot answering this question.
 #
+thisPlotName <- "plot2"
+
 ##### Data Retrieval/Loading - Standard between all plots #######
+message("*** Starting ", thisPlotName)
 # if we don't have the data available, then go get it
 if (!exists("NEI")) {
   library(dplyr)
@@ -37,7 +40,7 @@ if (!exists("NEI")) {
 
 
   # Clean up unnecessary files and variables
-  message("Cleaning temp items")
+  message("Clearing temp items")
   unlink(raw.file.scc)
   unlink(raw.file.summary)
   rm(raw.file.scc)
@@ -48,12 +51,21 @@ if (!exists("NEI")) {
 
 }
 
-# set pngOutput to false to write to screen
-pngOutput<-FALSE
+# set pngOutput to false to write to screen; snagging pngOutput
+# from global environment allows all plot scripts to be ran 
+# without having to modify the code here 
+if (!exists("pngOutput")) {
+  pngOutput<-FALSE
+}
+pngFilename <- paste0(thisPlotName,".png") 
 if (pngOutput) {
-  png(file="plot2.png")
+  png(file=pngFilename)
+  message("Output: ",pngFilename)
+} else {
+  message("Output: screen")
 }
 
+message("Assignment-specific data preparation")
 # filter out Baltimore, apply same data massaging as plot1
 yearlyEmissionsBalt <- filter(NEI,fips == "24510") %>%
   group_by(year) %>%
@@ -78,10 +90,13 @@ plot(xrange, yrange,
 axis(side=1,
      at=unique(yearlyEmissionsBalt$year))
 
-lines(yearlyEmissionsBalt$year,yearlyEmissionsBalt$total_emissions,type="l",col="red",lwd=5)
+lines(yearlyEmissionsBalt$year,yearlyEmissionsBalt$total_emissions,type="l",col="red",lwd=3)
 
 rm(xrange)
 rm(yrange)
+rm(yearlyEmissionsBalt)
+rm(pngFilename)
+rm(thisPlotName)
 
 # closes the png device if necessary
 if (pngOutput) {
