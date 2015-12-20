@@ -99,7 +99,7 @@ plot(xrange, yrange,
      main="PM2.5 Total Emissions By Year - Coal Combustion",
      xaxt = "n",
      xlab="",
-     ylab="Total Emissions, Tons (k)"
+     ylab="Total Emissions, Tons (x1000)"
 )
 
 axis(side=1,

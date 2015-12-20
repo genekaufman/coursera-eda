@@ -69,7 +69,7 @@ if (pngOutput) {
 message("Assignment-specific data preparation")
 yearlyEmissions <- NEI %>%
   group_by(year) %>%
-  summarize(total_emissions = sum(Emissions)/1000000)
+  summarize(total_emissions = sum(Emissions)/1000)
 
 message("Creating plot")
 # Time to actually create the graph
@@ -84,7 +84,7 @@ plot(xrange, yrange,
      main="PM2.5 Total Emissions By Year - All Sources",
      xaxt = "n",
      xlab="",
-     ylab="Total Emissions, Tons (mm)"
+     ylab="Total Emissions, Tons (x1000)"
 )
 
 axis(side=1,
