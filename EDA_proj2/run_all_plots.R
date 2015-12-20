@@ -1,4 +1,4 @@
-pngOutput<-F
+pngOutput<-T
 if (file.exists("plot1.R")) { source("plot1.R")}
 if (file.exists("plot2.R")) { source("plot2.R")}
 if (file.exists("plot3.R")) { source("plot3.R")}

@@ -92,11 +92,9 @@ axis(side=1,
 
 lines(yearlyEmissionsBalt$year,yearlyEmissionsBalt$total_emissions,type="l",col="red",lwd=3)
 
-rm(xrange)
-rm(yrange)
-rm(yearlyEmissionsBalt)
-rm(pngFilename)
-rm(thisPlotName)
+# clear out temp variables and data
+message("Clearing assignment-specific temp items")
+rm(list=ls()[ls()!="NEI" & ls()!="SCC" & ls()!="pngOutput"])
 
 # closes the png device if necessary
 if (pngOutput) {

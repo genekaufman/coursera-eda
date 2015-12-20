@@ -138,16 +138,8 @@ mtext(text = results,side=1,line=4,cex=0.75)
 
 # clear out temp variables and data
 message("Clearing assignment-specific temp items")
-rm(xrange)
-rm(yrange)
-rm(te.max)
-rm(te.min)
-rm(join_sql)
-rm(joined_summary)
-rm(SCCL1_Mobile)
-rm(NEI_BaltLA)
-rm(pngFilename)
-rm(thisPlotName)
+rm(list=ls()[ls()!="NEI" & ls()!="SCC" & ls()!="pngOutput"])
+
 
 # closes the png device if necessary
 if (pngOutput) {

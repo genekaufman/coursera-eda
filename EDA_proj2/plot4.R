@@ -109,15 +109,8 @@ lines(joined_summary$year,joined_summary$total_emissions,type="l",col="red",lwd=
 
 # clear out temp variables and data
 message("Clearing assignment-specific temp items")
-rm(xrange)
-rm(yrange)
-rm(te.max)
-rm(te.min)
-rm(join_sql)
-rm(joined_summary)
-rm(SCCEIS_Coal)
-rm(pngFilename)
-rm(thisPlotName)
+rm(list=ls()[ls()!="NEI" & ls()!="SCC" & ls()!="pngOutput"])
+
 
 # closes the png device if necessary
 if (pngOutput) {

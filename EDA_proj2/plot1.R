@@ -94,11 +94,8 @@ lines(yearlyEmissions$year,yearlyEmissions$total_emissions,type="l",col="red",lw
 
 # clear out temp variables and data
 message("Clearing assignment-specific temp items")
-rm(xrange)
-rm(yrange)
-rm(yearlyEmissions)
-rm(pngFilename)
-rm(thisPlotName)
+rm(list=ls()[ls()!="NEI" & ls()!="SCC" & ls()!="pngOutput"])
+
 
 # closes the png device if necessary
 if (pngOutput) {
