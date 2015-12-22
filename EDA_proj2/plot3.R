@@ -4,6 +4,11 @@
 #           seen increases in emissions from 1999-2008? Use the ggplot2 plotting
 #           system to make a plot answer this question.
 #
+# My Approach:  filter out Baltimore data, group by year, type, add trendline
+#               to indicate change in emissions; line sloping down (left-to-right)
+#               shows a decrease in emissions, while a line sloping up shows an
+#               increase.
+#
 thisPlotName <- "plot3"
 
 ##### Data Retrieval/Loading - Standard between all plots #######
@@ -66,6 +71,7 @@ if (pngOutput) {
 } else {
   message("Output: screen")
 }
+### End of code common to all plots ###
 
 message("Assignment-specific data preparation")
 # filter out Baltimore
@@ -76,30 +82,24 @@ yearlyEmissionsBalt <- filter(NEI,fips == "24510") %>%
 message("Creating plot")
 # Time to actually create the graph
 
-# get the range for the x and y axis
-xrange <- range(yearlyEmissionsBalt$year)
-yrange <- range(yearlyEmissionsBalt$total_emissions)
+#get the x-axis year labels
+xvals <- unique(yearlyEmissionsBalt$year)
 
-if (TRUE) {
 library(ggplot2)
-# create qplot
-thisplot<-qplot(year,total_emissions,
-  data=yearlyEmissionsBalt,
-  geom="line",
-  facets= .~ type
-)
+# create ggplot
+thisplot<-ggplot(yearlyEmissionsBalt, aes(year,total_emissions)) +
+  geom_line() +
+  facet_grid(~type) +
+  ylab("Total Emissions")+
+  ggtitle("Baltimore Emissions by Type") +
+  stat_smooth(method="lm",se=FALSE) +
+  scale_x_continuous(breaks=xvals,minor_breaks=NULL)
+
 print(thisplot)
-
-# axis(side=1,
-#      at=unique(yearlyEmissionsBalt$year))
-#
-# lines(yearlyEmissionsBalt$year,yearlyEmissionsBalt$total_emissions,type="l",col="red",lwd=3)
-
-}
 
 # clear out temp variables and data
 message("Clearing assignment-specific temp items")
-#rm(list=ls()[ls()!="NEI" & ls()!="SCC" & ls()!="pngOutput"])
+rm(list=ls()[ls()!="NEI" & ls()!="SCC" & ls()!="pngOutput"])
 
 # closes the png device if necessary
 if (pngOutput) {
