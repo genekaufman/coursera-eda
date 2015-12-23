@@ -93,7 +93,8 @@ thisplot<-ggplot(yearlyEmissionsBalt, aes(year,total_emissions)) +
   ylab("Total Emissions")+
   ggtitle("Baltimore Emissions by Type") +
   stat_smooth(method="lm",se=FALSE) +
-  scale_x_continuous(breaks=xvals,minor_breaks=NULL)
+  scale_x_continuous(breaks=xvals,minor_breaks=NULL) +
+  theme(panel.margin = unit(1, "lines"))
 
 print(thisplot)
 

@@ -1,8 +1,14 @@
-# plot6.R - Compare emissions from motor vehicle sources in Baltimore City 
-#           with emissions from motor vehicle sources in Los Angeles County, 
-#           California (fips == "06037"). Which city has seen greater changes 
+# plot6.R - Compare emissions from motor vehicle sources in Baltimore City
+#           with emissions from motor vehicle sources in Los Angeles County,
+#           California (fips == "06037"). Which city has seen greater changes
 #           over time in motor vehicle emissions?
-#
+
+# My Approach:  filter out Baltimore & LA Motor Vehicle data, Group by year, add
+#               trendline to indicate change in emissions; line sloping down
+#               (left-to-right) shows a decrease in emissions, while a line
+#               sloping up shows an increase. Also will add text to chart with
+#               Emissions decrease for each city
+
 thisPlotName <- "plot6"
 
 ##### Data Retrieval/Loading - Standard between all plots #######
@@ -53,30 +59,29 @@ if (!exists("NEI")) {
 }
 
 # set pngOutput to false to write to screen; snagging pngOutput
-# from global environment allows all plot scripts to be ran 
-# without having to modify the code here 
+# from global environment allows all plot scripts to be ran
+# without having to modify the code here
 if (!exists("pngOutput")) {
   pngOutput<-FALSE
 }
-pngFilename <- paste0(thisPlotName,".png") 
+pngFilename <- paste0(thisPlotName,".png")
 if (pngOutput) {
   png(file=pngFilename)
   message("Output: ",pngFilename)
 } else {
   message("Output: screen")
 }
-
+### End of code common to all plots ###
 
 message("Assignment-specific data preparation")
-# pull out Mobile sources
+# pull out Motor sources - best indicated by "Mobile" in SCC.Level.One
 SCCL1_Mobile<-SCC[grepl("Mobile",SCC$SCC.Level.One),]
 
 # Filter out Baltimore and Los Angeles
-# filter out Baltimore, apply same data massaging as plot1
-NEI_BaltLA <- filter(NEI,fips == "24510" | fips == "06037") 
+NEI_BaltLA <- filter(NEI,fips == "24510" | fips == "06037")
 
 # create a new joined data frame that includes only those
-# observations in NEI that match the filtered sources in 
+# observations in NEI that match the filtered sources in
 # SCCL1_Mobile
 # Since EI.Sector has a dot in it, it must be enclosed in quotes
 # or else sqldf will try to interpret it as table.column
@@ -97,7 +102,7 @@ xrange <- range(joined_summary$year)
 te.max <- max(joined_summary$total_emissions)
 te.min <- min(joined_summary$total_emissions)
 # set the vertical scale 10% below the min and 10% above the max
-yrange<-c(te.min * 0.9 ,te.max * 1.1) 
+yrange<-c(te.min * 0.9 ,te.max * 1.1)
 
 # create a blank plot
 plot(xrange, yrange,
@@ -108,31 +113,49 @@ plot(xrange, yrange,
      ylab="Total Emissions, Tons (x1000)"
 )
 
+# clean up x-axis labels
 axis(side=1,
      at=unique(joined_summary$year))
+
+# add emission plots
 BaltLAColors<-c("red","blue")
 Balt<-filter(joined_summary,fips == "24510")
 LA<-filter(joined_summary,fips == "06037")
+
+# get the trendline data
+fitBalt <- lm(total_emissions~year, data=Balt)
+fitLA <- lm(total_emissions~year, data=LA)
 
 lines(Balt$year,Balt$total_emissions,type="l",
       col=BaltLAColors[1],lwd=3)
 lines(LA$year,LA$total_emissions,type="l",
       col=BaltLAColors[2],lwd=3)
-BaltDelta<-(Balt[1,"total_emissions"] - Balt[4,"total_emissions"]) *1000
-LADelta<-(LA[1,"total_emissions"] - LA[4,"total_emissions"]) *1000
 
-legend("topright",  
-       c("Baltimore","Los Angeles"), 
-       lty=c(1,1), 
+# add trendlines
+abline(fitBalt,col="black")
+abline(fitLA,col="black")
+
+
+# add legend
+legend("topright",
+       c("Baltimore","Los Angeles"),
+       lty=c(1,1),
        lwd=c(3,3),
        col=BaltLAColors,
        cex=0.75,
        bty="n"
-       ) # gives the legend lines the correct color and width
+) # gives the legend lines the correct color and width
+
+# build results text
+BaltDelta<-(Balt[1,"total_emissions"] - Balt[4,"total_emissions"]) *1000
+LADelta<-(LA[1,"total_emissions"] - LA[4,"total_emissions"]) *1000
+
 results<- paste("Emissions Decrease: 1999-2008 (Tons)\n",
                 "Baltimore:",format(round(BaltDelta, 2), nsmall = 2),"\n",
                 "Los Angeles:",format(round(LADelta, 2), nsmall = 2)
       )
+
+# add results text to x-axis
 mtext(text = results,side=1,line=4,cex=0.75)
 
 

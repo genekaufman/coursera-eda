@@ -3,6 +3,9 @@
 #           showing the total PM2.5 emission from all sources for each of
 #           the years 1999, 2002, 2005, and 2008.
 #
+# My Approach:  Group by year, add trendline to indicate change in emissions;
+#               line sloping down (left-to-right) shows a decrease in emissions,
+#               while a line sloping up shows an increase.
 thisPlotName <- "plot1"
 
 ##### Data Retrieval/Loading - Standard between all plots #######
@@ -53,18 +56,19 @@ if (!exists("NEI")) {
 }
 
 # set pngOutput to false to write to screen; snagging pngOutput
-# from global environment allows all plot scripts to be ran 
-# without having to modify the code here 
+# from global environment allows all plot scripts to be ran
+# without having to modify the code here
 if (!exists("pngOutput")) {
   pngOutput<-FALSE
 }
-pngFilename <- paste0(thisPlotName,".png") 
+pngFilename <- paste0(thisPlotName,".png")
 if (pngOutput) {
   png(file=pngFilename)
   message("Output: ",pngFilename)
 } else {
   message("Output: screen")
 }
+### End of code common to all plots ###
 
 message("Assignment-specific data preparation")
 yearlyEmissions <- NEI %>%
@@ -77,6 +81,8 @@ message("Creating plot")
 # get the range for the x and y axis
 xrange <- range(yearlyEmissions$year)
 yrange <- range(yearlyEmissions$total_emissions)
+# get the trendline data
+fit <- lm(total_emissions~year, data=yearlyEmissions)
 
 # create a blank plot
 plot(xrange, yrange,
@@ -86,11 +92,15 @@ plot(xrange, yrange,
      xlab="",
      ylab="Total Emissions, Tons (x1000)"
 )
-
+# clean up x-axis labels
 axis(side=1,
      at=unique(yearlyEmissions$year))
 
+# add emission plot
 lines(yearlyEmissions$year,yearlyEmissions$total_emissions,type="l",col="red",lwd=3)
+
+# add trendline
+abline(fit,col="blue")
 
 # clear out temp variables and data
 message("Clearing assignment-specific temp items")

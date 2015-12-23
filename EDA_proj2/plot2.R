@@ -1,7 +1,11 @@
-# plot2.R - Have total emissions from PM2.5 decreased in the 
-#           Baltimore City, Maryland (fips == "24510") from 1999 to 2008? 
+# plot2.R - Have total emissions from PM2.5 decreased in the
+#           Baltimore City, Maryland (fips == "24510") from 1999 to 2008?
 #           Use the base plotting system to make a plot answering this question.
 #
+# My Approach:  filter out Baltimore data, Group by year, add trendline to
+#               indicate change in emissions; line sloping down (left-to-right)
+#               shows a decrease in emissions, while a line sloping up shows
+#               an increase.
 thisPlotName <- "plot2"
 
 ##### Data Retrieval/Loading - Standard between all plots #######
@@ -52,19 +56,20 @@ if (!exists("NEI")) {
 }
 
 # set pngOutput to false to write to screen; snagging pngOutput
-# from global environment allows all plot scripts to be ran 
-# without having to modify the code here 
+# from global environment allows all plot scripts to be ran
+# without having to modify the code here
 if (!exists("pngOutput")) {
   pngOutput<-FALSE
 }
-pngFilename <- paste0(thisPlotName,".png") 
+pngFilename <- paste0(thisPlotName,".png")
 if (pngOutput) {
   png(file=pngFilename)
   message("Output: ",pngFilename)
 } else {
   message("Output: screen")
 }
-
+### End of code common to all plots ###
+###
 message("Assignment-specific data preparation")
 # filter out Baltimore, apply same data massaging as plot1
 yearlyEmissionsBalt <- filter(NEI,fips == "24510") %>%
@@ -77,6 +82,8 @@ message("Creating plot")
 # get the range for the x and y axis
 xrange <- range(yearlyEmissionsBalt$year)
 yrange <- range(yearlyEmissionsBalt$total_emissions)
+# get the trendline data
+fit <- lm(total_emissions~year, data=yearlyEmissionsBalt)
 
 # create a blank plot
 plot(xrange, yrange,
@@ -86,11 +93,15 @@ plot(xrange, yrange,
      xlab="",
      ylab="Total Emissions, Tons (x1000)"
 )
-
+# clean up x-axis labels
 axis(side=1,
      at=unique(yearlyEmissionsBalt$year))
 
+# add emission plot
 lines(yearlyEmissionsBalt$year,yearlyEmissionsBalt$total_emissions,type="l",col="red",lwd=3)
+
+# add trendline
+abline(fit,col="blue")
 
 # clear out temp variables and data
 message("Clearing assignment-specific temp items")

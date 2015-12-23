@@ -1,6 +1,10 @@
-# plot5.R - How have emissions from motor vehicle sources changed from 
-# 1999-2008 in Baltimore City?
+# plot5.R - How have emissions from motor vehicle sources changed from
+#           1999-2008 in Baltimore City?
 #
+# My Approach:  filter out Baltimore, Motor Vehicle data, Group by year, add
+#               trendline to indicate change in emissions; line sloping down
+#               (left-to-right) shows a decrease in emissions, while a line
+#               sloping up shows an increase.
 thisPlotName <- "plot5"
 
 ##### Data Retrieval/Loading - Standard between all plots #######
@@ -51,29 +55,29 @@ if (!exists("NEI")) {
 }
 
 # set pngOutput to false to write to screen; snagging pngOutput
-# from global environment allows all plot scripts to be ran 
-# without having to modify the code here 
+# from global environment allows all plot scripts to be ran
+# without having to modify the code here
 if (!exists("pngOutput")) {
   pngOutput<-FALSE
 }
-pngFilename <- paste0(thisPlotName,".png") 
+pngFilename <- paste0(thisPlotName,".png")
 if (pngOutput) {
   png(file=pngFilename)
   message("Output: ",pngFilename)
 } else {
   message("Output: screen")
 }
-
+### End of code common to all plots ###
 
 message("Assignment-specific data preparation")
-# pull out Mobile sources
+# pull out Motor sources - best indicated by "Mobile" in SCC.Level.One
 SCCL1_Mobile<-SCC[grepl("Mobile",SCC$SCC.Level.One),]
 
 # Filter out Baltimore
-NEI_Balt <- filter(NEI,fips == "24510") 
+NEI_Balt <- filter(NEI,fips == "24510")
 
 # create a new joined data frame that includes only those
-# observations in NEI that match the filtered sources in 
+# observations in NEI that match the filtered sources in
 # SCCL1_Mobile
 # Since EI.Sector has a dot in it, it must be enclosed in quotes
 # or else sqldf will try to interpret it as table.column
@@ -94,7 +98,9 @@ xrange <- range(joined_summary$year)
 te.max <- max(joined_summary$total_emissions)
 te.min <- min(joined_summary$total_emissions)
 # set the vertical scale 10% below the min and 10% above the max
-yrange<-c(te.min * 0.9 ,te.max * 1.1) 
+yrange<-c(te.min * 0.9 ,te.max * 1.1)
+# get the trendline data
+fit <- lm(total_emissions~year, data=joined_summary)
 
 # create a blank plot
 plot(xrange, yrange,
@@ -104,11 +110,15 @@ plot(xrange, yrange,
      xlab="",
      ylab="Total Emissions, Tons (x1000)"
 )
-
+# clean up x-axis labels
 axis(side=1,
      at=unique(joined_summary$year))
 
+# add emission plot
 lines(joined_summary$year,joined_summary$total_emissions,type="l",col="red",lwd=3)
+
+# add trendline
+abline(fit,col="blue")
 
 # clear out temp variables and data
 message("Clearing assignment-specific temp items")
